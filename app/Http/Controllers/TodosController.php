@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TodosRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class TodosController extends Controller
     public function index(){
 
         $user = Auth::user();
-        $todos = Todos::where('created_by', $user->id)->orderBy('id', 'asc')->paginate(5);
+        $todos = Todos::where('created_by', $user->id)->orderBy('created_at', 'desc')->paginate(5);
 
         $total_todos = Todos::where('created_by', $user->id)->get();
         $total_todos_num = count($total_todos);
@@ -56,4 +57,35 @@ class TodosController extends Controller
             'todo' => $todo
         ]);
     }
+
+    public function save(TodosRequest $request, Todos $todo){
+        $todo->update($request->all());
+
+        $test = $request->completed_at;
+        if(isset($request->completed_at)){
+            if(!$todo->completed_at){
+                $todo->completed_at = date('Y-m-d H:i:s');
+                $todo->save();
+            }
+        } else {
+            $todo->completed_at = NULL;
+            $todo->save();
+        }
+
+        return redirect()->route('todos.index');
+    }
+
+    public function new(){
+        return view('todos.new');
+    }
+
+    public function add(TodosRequest $request){
+        $todo = new Todos;
+        $todo->title = $request->title;
+        $todo->body = $request->body;
+        $todo->created_by = Auth::id();
+        $todo->save();
+        return redirect()->route('todos.index');
+    }
+
 }

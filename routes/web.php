@@ -31,6 +31,21 @@ Route::get('/edit/{todo}', [
     'as' => 'todos.edit'
 ]);
 
+Route::put('/save/{todo}', [
+    'uses' => 'TodosController@save',
+    'as' => 'todos.save'
+]);
+
+Route::get('/new', [
+    'uses' => 'TodosController@new',
+    'as' => 'todos.new'
+]);
+
+Route::post('/add', [
+    'uses' => 'TodosController@add',
+    'as' => 'todos.add'
+]);
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
